@@ -7,9 +7,10 @@ describe("Token Contract", function () {
     let addr1;
     let addr2;
     let addrs;
+
     /*
-    1. For Every Test case this for line always exicute to reduce the code.
-    2. It's use Mocha Framework.
+    For every test case, the code inside this `beforeEach` block will be executed.
+    It initializes the Token contract, gets signers (addresses), and deploys the Token contract.
     */
     beforeEach(async function () { // It is a Hook
         Token = await ethers.getContractFactory("Token");
@@ -18,10 +19,16 @@ describe("Token Contract", function () {
     })
 
     describe("Deployment", function () {
+        /*
+        Test case: It checks if the owner is set correctly during contract deployment.
+        */
         it("Should set the Right Owner", async function () {
             expect(await hardhatToken.owner()).to.equal(owner.address);
         })
 
+        /*
+        Test case: It checks if the total supply of tokens matches the balance of the owner after deployment.
+        */
         it("total Supply Token", async function () {
             const ownerBalance = await hardhatToken.Balanceof(owner.address);
             expect(await hardhatToken.totalSupply()).to.equal(ownerBalance);
@@ -29,6 +36,9 @@ describe("Token Contract", function () {
     })
 
     describe("Transaction", function () {
+        /*
+        Test case: It checks if tokens can be transferred between accounts.
+        */
         it("Transfer Account between Accounts", async function () {
             await hardhatToken.transferA(addr1.address, 5);
             const addr1Balance = await hardhatToken.Balanceof(addr1.address);
@@ -39,12 +49,18 @@ describe("Token Contract", function () {
             expect(addr2Balance).to.equal(5);
         })
 
-        it("Fail if sender have does not have Enough Token", async function () {
+        /*
+        Test case: It checks if an attempt to transfer tokens without sufficient balance fails.
+        */
+        it("Fail if sender does not have Enough Token", async function () {
             const initBalance = await hardhatToken.Balanceof(owner.address);
             await expect(hardhatToken.connect(addr1).transferA(owner.address, 1)).to.be.revertedWith("Not Enough Token");
             expect(await hardhatToken.Balanceof(owner.address)).to.equal(initBalance);
         })
 
+        /*
+        Test case: It checks if the token balances are updated correctly after multiple transactions.
+        */
         it("Updated Balance After Transaction", async function () {
             const initBalance = await hardhatToken.Balanceof(owner.address);
             await hardhatToken.transferA(addr1.address, 5);
